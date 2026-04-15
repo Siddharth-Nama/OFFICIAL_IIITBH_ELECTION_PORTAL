@@ -6,8 +6,13 @@ from voting.forms import *
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
+from django.views.generic import TemplateView
 import json
-from django_renderpdf.views import PDFView
+try:
+    from django_renderpdf.views import PDFView
+except Exception:
+    # Local fallback when WeasyPrint native libraries are unavailable.
+    PDFView = TemplateView
 from administrator.passwordsofVoters import passwords
 
 def find_n_winners(data, n):
