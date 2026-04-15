@@ -57,6 +57,7 @@
         height: 100vh;
         margin: 0;
         font-family: Arial, sans-serif;
+        color: #102238;
       }
 
       .mt20 {
@@ -154,6 +155,94 @@
 
       .navbar a:hover {
         text-decoration: underline;
+      }
+
+      .btn {
+        border-radius: 10px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+      }
+
+      .btn-flat {
+        box-shadow: none;
+      }
+
+      .login-box,
+      .modal-dialog {
+        border-radius: 16px;
+      }
+
+      .login-box-body,
+      .modal-content,
+      .box.box-solid,
+      .candidate-item {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(16, 34, 56, 0.08);
+        backdrop-filter: blur(6px);
+      }
+
+      .btn:focus,
+      .form-control:focus,
+      .candidate-item input:focus,
+      .platform:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(10, 77, 163, 0.18);
+      }
+
+      .login-box-body,
+      .box.box-solid,
+      .candidate-item,
+      .modal-content {
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      .login-box-body,
+      .box.box-solid,
+      .candidate-item,
+      .modal-content,
+      .form-control {
+        border-radius: 14px;
+      }
+
+      .form-control {
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .platform,
+      .btn-primary,
+      .btn-success,
+      .btn-default {
+        border: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #0b3e80, #0a4da3);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #158f60, #2dbb7a);
+      }
+
+      .btn-default {
+        background: #eef3f8;
+      }
+
+      .login-box-body {
+        padding: 28px 26px;
+      }
+
+      .login-logo {
+        margin-bottom: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .form-group.has-feedback .form-control {
+        padding-right: 42px;
       }
     </style>
   </head>

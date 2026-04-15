@@ -41,6 +41,44 @@
   </button>
   <style>
 
+    .btn,
+    .prev-position,
+    .next-position {
+      border-radius: 999px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .btn:hover,
+    .prev-position:hover,
+    .next-position:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+    }
+
+    .btn-flat {
+      box-shadow: none;
+    }
+
+    .text-center .btn {
+      min-width: 132px;
+      margin: 0 6px 8px;
+    }
+
+    .alert {
+      border-radius: 12px;
+    }
+
+    .candidate-item,
+    .box.box-solid {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .candidate-item:hover,
+    .box.box-solid:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(26, 35, 126, 0.14);
+    }
+
     .ballot-position .next-position,
 .ballot-position .prev-position {
   display: none !important;
@@ -64,11 +102,11 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: var(--primary-blue);
-  color: var(--primary-yellow);
+  background: linear-gradient(135deg, #0b3e80, #0a4da3);
+  color: #fff;
   border: none;
   cursor: pointer;
   display: flex;
@@ -78,8 +116,7 @@
   font-weight: bold;
   font-size: 14px;
   z-index: 10;
-  box-shadow: 0 2px 10px rgba(26, 35, 126, 0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 22px rgba(26, 35, 126, 0.22);
 }
 #ballot-container.first .prev-position {
   display: none;
@@ -92,7 +129,7 @@
 
 /* Left button */
 .prev-position {
-  left: -90px; /* adjust based on layout */
+  left: -86px;
 }
 
 /* Right button */
@@ -103,14 +140,22 @@
 /* Hover effects */
 .prev-position:hover,
 .next-position:hover {
-  background: var(--secondary-blue);
+  background: linear-gradient(135deg, #083978, #0b3e80);
   transform: translateY(-50%) scale(1.1);
 }
-element.style {
-    color: #d6f6b7;
-    text-decoration: none;
+
+.candidate-item {
+  border-radius: 16px;
 }
-/* Default position */
+
+.candidate-item .cname {
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.candidate-item img {
+  border-radius: 14px;
+}
 
 
 
