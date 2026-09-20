@@ -1,0 +1,516 @@
+{% extends 'root.html' %}
+
+
+
+
+
+{% block content %}
+<section class="content">
+  <h1 class="page-header text-center title"><b>{{ TITLE }}</b></h1>
+  <div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+      <div class="alert alert-danger alert-dismissible" id="alert" style="display:none;">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <span class="message"></span>
+      </div>
+
+      <!-- Ballot Form -->
+      <form method="POST" id="ballotForm" action="{% url 'submit_ballot' %}">
+        {% csrf_token %}
+        <div id="ballot-container">
+          {{ ballot|safe }}
+        </div>
+        <div class="text-center">
+          <button type="button" class="btn btn-success btn-flat" id="preview"><i class="fa fa-file-text"></i> Preview</button>
+          <button type="submit" class="btn btn-primary btn-flat" name="submit_vote"><i class="fa fa-check-square-o"></i> Submit</button>
+        </div>
+      </form>
+      <!-- Floating Navigation Buttons -->
+<div class="navigation-buttons">
+  <button class="prev-position" id="prevPosition">
+    <i class="fa fa-arrow-left" style="display: block; font-size: 20px;"></i>
+    Previous
+  </button>
+
+  
+</div>
+<button class="next-position" id="nextPosition">
+    <i class="fa fa-arrow-right" style="display: block; font-size: 20px; transform: rotate(180deg);"></i>
+    Next
+  </button>
+  <style>
+
+    .btn,
+    .prev-position,
+    .next-position {
+      border-radius: 999px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .btn:hover,
+    .prev-position:hover,
+    .next-position:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+    }
+
+    .btn-flat {
+      box-shadow: none;
+    }
+
+    .text-center .btn {
+      min-width: 132px;
+      margin: 0 6px 8px;
+    }
+
+    .alert {
+      border-radius: 12px;
+    }
+
+    .candidate-item,
+    .box.box-solid {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .candidate-item:hover,
+    .box.box-solid:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(26, 35, 126, 0.14);
+    }
+
+    .ballot-position .next-position,
+.ballot-position .prev-position {
+  display: none !important;
+}
+#ballot-container {
+  position: relative;
+}
+
+#ballot-container {
+  position: relative;
+}
+
+/* Container must be relative */
+#ballot-container {
+  position: relative;
+}
+
+/* Shared styles for both buttons */
+.prev-position,
+.next-position {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0b3e80, #0a4da3);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 10;
+  box-shadow: 0 10px 22px rgba(26, 35, 126, 0.22);
+}
+#ballot-container.first .prev-position {
+  display: none;
+}
+
+/* Hide next if in 'last' state */
+#ballot-container.last .next-position {
+  display: none;
+}
+
+/* Left button */
+.prev-position {
+  left: -86px;
+}
+
+/* Right button */
+.next-position {
+  right: -90px;
+}
+
+/* Hover effects */
+.prev-position:hover,
+.next-position:hover {
+  background: linear-gradient(135deg, #083978, #0b3e80);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.candidate-item {
+  border-radius: 16px;
+}
+
+.candidate-item .cname {
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.candidate-item img {
+  border-radius: 14px;
+}
+
+
+
+  </style>
+
+  
+</div>
+
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+  function navigateToPosition(index) {
+      // Hide all positions
+      document.querySelectorAll('.ballot-position').forEach((position) => {
+          position.style.display = 'none';
+      });
+
+      // Show the selected position
+      const targetPosition = document.getElementById(`position-${index}`);
+      if (targetPosition) {
+          targetPosition.style.display = 'block';
+      }
+  }
+</script>
+
+<script>
+$(function() {
+    // Terms Modal on Page Load
+    $('#terms_modal').modal('show');
+
+    // Accept Terms and Hide Modal
+    $('#accept_terms').click(function() {
+        $('#terms_modal').modal('hide');
+    });
+
+    // iCheck plugin initialization
+    $('.content').iCheck({
+        checkboxClass: 'icheckbox_flat-green',
+        radioClass: 'iradio_flat-green'
+    });
+
+    // Reset button functionality
+    $(document).on('click', '.reset', function(e) {
+        e.preventDefault();
+        var desc = $(this).data('desc');
+        $('.' + desc).iCheck('uncheck');
+    });
+
+    // Show Bio Modal on Platform Click
+    $(document).on('click', '.platform', function(e) {
+        e.preventDefault();
+        $('#bio').modal('show');
+        var platform = $(this).data('bio');
+        var fullname = $(this).data('fullname');
+        $('.candidate').html(fullname);
+        $('#plat_view').html(platform);
+    });
+
+    // Preview button functionality
+    $('#preview').click(function(e) {
+        e.preventDefault();
+        var form = $('#ballotForm').serialize();
+        if (form.search("&") < 0 || form == '') {
+            toastr.error('You must vote at least one candidate', "Preview Error");
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "preview_vote" %}',
+                data: form,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.error) {
+                        var errmsg = '';
+                        var messages = response.message;
+                        for (i in messages) {
+                            errmsg += messages[i];
+                        }
+                        toastr.error(errmsg, "Preview Error")
+                    } else {
+                        $('#preview_modal').modal('show');
+                        $('#preview_body').html(response.list);
+                    }
+                }
+            });
+        }
+    });
+
+    // Vertical ballot navigation
+    let currentPosition = 0;
+    const positions = $('.ballot-position');
+
+    function showPosition(index) {
+        positions.show();
+        positions.eq(index).show();
+        updateNavigationButtons();
+    }
+    var form = $('#ballotForm').serialize();
+    console.log('Number of positions:', positions.length);
+    console.log('Number of Form:', form);
+
+    function updateNavigationButtons() {
+    if (currentPosition === 0) {
+        $('.prev-position').hide(); // Hide at first
+    } else {
+        $('.prev-position').show().text('Previous');
+    }
+
+    if (currentPosition === positions.length - 1) {
+        $('.next-position').hide(); // Hide at last
+    } else {
+        $('.next-position').show().text('Next');
+    }
+}
+    $(document).on('click', '.next-position', function() {
+        if (currentPosition < positions.length - 1) {
+            currentPosition++;
+            showPosition(currentPosition);
+        } else {
+            // Submit the form
+            $('#ballotForm').submit();
+        }
+    });
+
+    $(document).on('click', '.prev-position', function() {
+        if (currentPosition > 0) {
+            currentPosition--;
+            showPosition(currentPosition);
+        }
+    });
+
+    // Show the first position immediately
+    showPosition(0);
+});
+$(function() {
+    // Terms Modal on Page Load
+    $('#terms_modal').modal('show');
+
+    // Accept Terms and Hide Modal
+    $('#accept_terms').click(function() {
+        $('#terms_modal').modal('hide');
+    });
+
+    // iCheck plugin initialization
+    $('.content').iCheck({
+        checkboxClass: 'icheckbox_flat-green',
+        radioClass: 'iradio_flat-green'
+    });
+
+    // Reset button functionality
+    $(document).on('click', '.reset', function(e) {
+        e.preventDefault();
+        var desc = $(this).data('desc');
+        $('.' + desc).iCheck('uncheck');
+    });
+
+    // Show Bio Modal on Platform Click
+    $(document).on('click', '.platform', function(e) {
+        e.preventDefault();
+        $('#bio').modal('show');
+        var platform = $(this).data('bio');
+        var fullname = $(this).data('fullname');
+        $('.candidate').html(fullname);
+        $('#plat_view').html(platform);
+    });
+
+    // Preview button functionality
+    $('#preview').click(function(e) {
+        e.preventDefault();
+        var form = $('#ballotForm').serialize();
+        if (form.search("&") < 0 || form == '') {
+            toastr.error('You must vote at least one candidate', "Preview Error");
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "preview_vote" %}',
+                data: form,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.error) {
+                        var errmsg = '';
+                        var messages = response.message;
+                        for (i in messages) {
+                            errmsg += messages[i];
+                        }
+                        toastr.error(errmsg, "Preview Error")
+                    } else {
+                        $('#preview_modal').modal('show');
+                        $('#preview_body').html(response.list);
+                    }
+                }
+            });
+        }
+    });
+
+    // Vertical ballot navigation
+    let currentPosition = 0;
+    const positions = $('.ballot-position');
+
+    function showPosition(index) {
+        positions.hide();
+        positions.eq(index).show();
+        updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+        $('.prev-position').prop('disabled', currentPosition === 0);
+        $('.next-position').prop('disabled', currentPosition === positions.length - 1);
+        if (currentPosition === positions.length - 1) {
+            $('.next-position').text('Submit');
+        } else {
+            $('.next-position').text('Next');
+        }
+    }
+
+    $(document).on('click', '.next-position', function() {
+        if (currentPosition < positions.length - 1) {
+            currentPosition++;
+            showPosition(currentPosition);
+        } else {
+            // Submit the form
+            $('#ballotForm').submit();
+        }
+    });
+
+    $(document).on('click', '.prev-position', function() {
+        if (currentPosition > 0) {
+            currentPosition--;
+            showPosition(currentPosition);
+        }
+    });
+
+    // Show the first position immediately
+    showPosition(0);
+});
+
+</script>
+{% endblock custom_js %}
+
+{% block modal %}
+<!-- Terms Modal -->
+<div class="modal fade" id="terms_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" style="font-weight: bolder;">How to Vote</h4>
+      </div>
+      <div class="modal-body">
+         <pre style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;
+         "> – Instructions
+Follow these steps to cast your vote successfully:
+
+✅ Step 1: Review the Position
+The current position (e.g., Vice President) is shown at the top of the card.
+
+✅ Step 2: Select One Candidate
+You must select only one candidate for the position.
+
+Click the radio button above the candidate's image to select them.
+
+You can view the candidate's Bio by clicking the 🔍 Bio button under their photo.
+
+🔁 Step 3: Reset Selection (if needed)
+If you want to change your choice, click the green Reset button on the top-right of the box.
+
+🔄 Step 4: Navigate Between Positions
+Use the Next and Previous circular buttons on the sides to move between different positions.
+
+👀 Step 5: Preview Your Ballot
+Once all positions are filled, click the green Preview button at the bottom to see your full ballot.
+
+📩 Step 6: Submit Your Vote
+After reviewing, click the blue Submit button to finalize your vote.
+
+⚠️ Important: Once submitted, you cannot vote again.
+
+ </pre>
+      </div> 
+      <style> -->
+        .modal-body
+        {
+          width: 100%;
+        }
+      </style>
+      <div class="modal-footer">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="btn btn-primary" id="accept_terms">Accept</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bio Modal -->
+<div class="modal fade" id="bio">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b><span class="candidate" style="font-size: x-large;"></span></b></h4>
+      </div>
+      <div class="modal-body">
+        <pre id="plat_view" style="white-space: pre-wrap; /* Allows content to wrap to next line */
+        overflow-y: auto;       /* Enables vertical scrolling */
+        overflow-x: hidden;     /* Disables horizontal scrolling */
+             /* Adjust height as needed */
+        word-break: break-word; /* Breaks long words to prevent overflow */
+        padding: 10px;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        font-size: x-large;
+        border: 1px solid #ccc;
+        border-radius: 5px;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="preview_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: large;" class="modal-title">Vote Preview</h4>
+      </div>
+      <div class="modal-body">
+        <div style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" id="preview_body"></div>
+      </div>
+      <div class="modal-footer">
+        <button style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         font-size: large;" type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock modal %}
+
+
+  
+
+
